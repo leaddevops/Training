@@ -1,0 +1,23 @@
+### ansible-playbook copy-template.yml -i ../inventory/contPlacement/hosts --extra-vars "tgthosts=all" -u theegaln -kKc paramiko
+---
+- name: Setup Custom Facts
+  hosts: "{{ tgthosts }}" 
+  gather_facts: no
+  become: yes
+  become_method: sudo
+  tasks:
+   - name: ensure custom facts directory exists
+     file: 
+       path=/etc/ansible/facts.d
+       recurse=yes
+       state=directory
+   - file:
+       path=/etc/ansible/facts.d/contFacts.fact
+       state=absent
+   - name: install custom fact module
+     template: 
+        src=/wfnse/healthchks/contPlacement/contFacts.j2
+        dest=/etc/ansible/facts.d/contFacts.fact
+        mode=0755
+#   - name: reload ansible_local
+#     setup: filter=ansible_local

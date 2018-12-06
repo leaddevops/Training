@@ -1,0 +1,8 @@
+- name: variables in playbook
+  hosts: localhost   
+  connection: local   
+  vars_files:     
+     - /tmp/vars.yml  
+  tasks:
+    - debug: 
+         var: abc 

@@ -1,0 +1,11 @@
+---
+# handlers file for test1
+- name: restart httpd
+  service: 
+    name: httpd
+    state: restarted
+
+- name: failure
+  copy: 
+    src: /tmp/vars.yml
+    dest: /tmp

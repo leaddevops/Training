@@ -1,0 +1,80 @@
+---
+
+    - name: Download ansible scripts from repo
+      get_url:
+        url: https://artifactorydev.es.ad.test.com/artifactory/Team-GEMS-local/Tomcat/ansible_tomcat_linux_bundle_8.0.20.0.tar
+        dest: /tmp/ansible_tomcat_linux_bundle_8.0.20.0.tar
+        mode: 0755
+        validate_certs: no
+        force: yes
+
+    - name: Extract ansible scripts
+      unarchive:
+        remote_src: yes
+        src: '/tmp/ansible_tomcat_linux_bundle_8.0.20.0.tar'
+        dest: /
+        mode: 0755
+
+    - name: Download ansible scripts from repo
+      get_url:
+        url: https://artifactorydev.es.ad.test.com/artifactory/Team-GEMS-local/Tomcat/tomcat_V8.0.20_sunjdk_install_1.cntl
+        dest: /tmp/tomcat_V8.0.20_sunjdk_install_1.cntl
+        mode: 0755
+        validate_certs: no
+        force: yes
+    
+    - name: Download ansible scripts from repo
+      get_url:
+        url: https://artifactorydev.es.ad.test.com/artifactory/Team-GEMS-local/Tomcat/tomcat_V8.0.20_sunjdk_install_2.cntl
+        dest: /tmp/tomcat_V8.0.20_sunjdk_install_2.cntl
+        mode: 0755
+        validate_certs: no
+        force: yes
+    
+    - name: Download ansible scripts from repo
+      get_url:
+        url: https://artifactorydev.es.ad.test.com/artifactory/Team-GEMS-local/Tomcat/tomcat_V8.0.20_sunjdk_install_3.cntl
+        dest: /tmp/tomcat_V8.0.20_sunjdk_install_3.cntl
+        mode: 0755
+        validate_certs: no
+        force: yes
+   
+    - name: Download ansible scripts from repo
+      get_url:
+        url: https://artifactorydev.es.ad.test.com/artifactory/Team-GEMS-local/Tomcat/tomcat_V8.0.20_sunjdk_install_4.cntl
+        dest: /tmp/tomcat_V8.0.20_sunjdk_install_4.cntl
+        mode: 0755
+        validate_certs: no
+        force: yes
+
+    - name: Download ansible scripts from repo
+      get_url:
+        url: https://artifactorydev.es.ad.test.com/artifactory/Team-GEMS-local/Tomcat/tomcat_V8.0.20_sunjdk_install_5.cntl
+        dest: /tmp/tomcat_V8.0.20_sunjdk_install_5.cntl
+        mode: 0755
+        validate_certs: no
+        force: yes
+
+    - copy: src=files/updateCntFile.sh dest=/tmp mode=0755
+    - copy: src=files/InstallTomcat.sh dest=/tmp mode=0755
+
+    - include: installpath.yml
+    - name: update cntl file
+      shell: sh /tmp/updateCntFile.sh "{{ NO_OF_JVMS }}" "{{ JVM_NAME_1 }}" "{{ JVM_1_ARGS }}" "{{ JVM_1_INSTALL_PATH }}" "{{ JVM_NAME_2 }}" "{{ JVM_2_ARGS }}" "{{ JVM_2_INSTALL_PATH }}" "{{ JVM_NAME_3 }}" "{{ JVM_3_ARGS }}" "{{ JVM_3_INSTALL_PATH }}" "{{ JVM_NAME_4 }}" "{{ JVM_4_ARGS }}" "{{ JVM_4_INSTALL_PATH }}" &> /tmp/screenOut.txt 
+      args:
+        executable: /bin/bash
+    - debug: var=NO_OF_JVMS
+    
+
+#    - name: Install tomcat
+#      shell: sh /tmp/InstallTomcat.sh "{{ NO_OF_JVMS }}"  &> /tmp/screenOut.txt
+#      args:
+#        executable: /bin/bash
+#    - debug: var=NO_OF_JVMS
+
+    - name: Install tomcat
+      shell: sh /home/ansible/tomcattopology/sh/tomcat_gen.sh /tmp/tomcat_V8.0.20_sunjdk_install_{{ NO_OF_JVMS }}.cntl  &> /tmp/screenOut.txt
+      args:
+        executable: /bin/bash
+    - debug: var=NO_OF_JVMS
+#    - include: permissions.yml

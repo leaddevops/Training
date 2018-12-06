@@ -1,0 +1,5 @@
+
+- hosts: ub
+  tasks:
+    - debug:
+        msg: "{{ansible_local.sample.ENV}}"

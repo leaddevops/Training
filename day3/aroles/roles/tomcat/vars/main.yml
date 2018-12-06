@@ -1,0 +1,76 @@
+--- 
+
+JVM_1_ARGS: "-Xmx{{ heap }}m -Xms {{ heap }}m"
+JVM_2_ARGS: "-Xmx{{ heap }}m -Xms {{ heap }}m"
+JVM_3_ARGS: "-Xmx{{ heap }}m -Xms {{ heap }}m"
+JVM_4_ARGS: "-Xmx{{ heap }}m -Xms {{ heap }}m"
+heap: '512'
+JVM_NAME: tomcat
+JVM_NAME_1: GEMS1
+JVM_NAME_2: GEMS2
+JVM_NAME_3: GEMS3
+JVM_NAME_4: GEMS4
+num_of_jvms: 1
+root_dir: /opt
+tomcat_service_name: tomcatd
+tomcat_user_action: install
+tomcat_version: "8.0.20"
+ant_version: "1.8.4"
+jdk_provider: SUN
+java_version: ' '
+port.base: 0
+incrementer: 1
+
+tomcat_tarball_name: 'ansible_tomcat_linux_bundle_{{ tomcat_version }}.0_sles12.tgz'
+jdk_sun_tarball_name: 'jdk-{{ java_version }}-linux-x64.tar.gz'
+jdk_ibm_tarball_name: 'ibm-java-x86_64-sdk-{{ java_version }}.tgz'
+
+
+
+#tomcat install root
+#root_dir: '/var'
+
+#tomcat version
+#tomcat_version: 8.0.20
+
+#number of jvms
+#NO_OF_JVMS: 1
+
+#heap size for JVM
+#heap: 512 
+
+#user action
+#tomcat_user_action: 'install'
+
+#JVM Name1
+#JVM_NAME_1: 'GEMS1'
+
+#JVM Name2
+#JVM_NAME_2: 'GEMS2'
+
+#JVM Name3
+#JVM_NAME_3: 'GEMS3'
+
+#JVM Name4
+#JVM_NAME_4: 'GEMS4'
+
+#JVM_ARGS 
+#JVM_1_ARGS: -Xmx512m -Xms512m
+#JVM_2_ARGS: -Xmx512m -Xms512m
+#JVM_3_ARGS: -Xmx512m -Xms512m
+#JVM_4_ARGS: -Xmx512m -Xms512m
+
+# JVM1 INstall Path
+#JVM_1_INSATAL_PATH = {{ root_dir }}/tomcatprofile/{{ JVM_NAME_1 }}
+
+# JVM1 INstall Path
+#JVM_2_INSATAL_PATH = {{ root_dir }}/tomcatprofile/{{ JVM_NAME_2 }}
+
+# JVM1 INstall Path
+#JVM_3_INSATAL_PATH = {{ root_dir }}/tomcatprofile/{{ JVM_NAME_3 }}
+
+# JVM1 INstall Path
+#JVM_4_INSATAL_PATH = {{ root_dir }}/tomcatprofile/{{ JVM_NAME_4 }}
+
+#tomcat service
+#tomcat_service_name: 'tomcatd'

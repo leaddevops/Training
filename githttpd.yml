@@ -1,0 +1,10 @@
+- hosts: lx
+  become: yes
+  tasks:
+    - name: Installing git and httpd
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+       - git
+       - httpd

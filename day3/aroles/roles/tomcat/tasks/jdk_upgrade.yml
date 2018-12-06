@@ -1,0 +1,219 @@
+---
+- include: extract.yml
+
+- name: jdk_update|remove temp directory if exists
+  file:
+    path: /tmp/jdk_upgrade
+    state: absent
+
+- name: jdk_update|rollback directory
+  file:
+    path: "{{ tomcat_topology_dir }}/rollback/jdk"
+    state: directory
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_group }}'
+    mode: 0755
+    recurse: yes
+    
+- name: jdk_update|capture folder version for backup
+  shell: ls -ltr {{ root_dir }}/ > {{ tomcat_topology_dir }}/rollback/jdk/file_list.txt
+  
+- name: jdk_update|write old java version to file |sun
+  shell: ls /app/bin/sun > {{ tomcat_topology_dir }}/rollback/jdk/old_java_version.txt
+  when: 
+    - jdk_provider == 'SUN'
+  register: old_jdk_version
+- 
+  debug: var=old_jdk_version
+
+- name: jdk_update|write old java version to file |ibm
+  shell: ls /app/bin/ibm > {{ tomcat_topology_dir }}/rollback/jdk/old_java_version.txt
+  when: 
+    - jdk_provider == 'IBM'
+  register: old_jdk_version
+- 
+  debug: var=old_jdk_version  
+
+- name: jdk_update|create tmp directory
+  file:
+    path: /tmp/jdk_upgrade/
+    state: directory
+
+- name: jdk_update|extract jdk binaries |sun
+  unarchive:
+    remote_src: yes
+    src: '/tmp/{{ jdk_sun_tarball_name }}'
+    dest: /tmp/jdk_upgrade/
+    mode: 0755
+  when:
+    - jdk_provider == 'SUN'
+    
+- name: jdk_update|extract jdk binaries |ibm
+  unarchive:
+    remote_src: yes
+    src: '/tmp/{{ jdk_ibm_tarball_name }}'
+    dest: /tmp/jdk_upgrade/
+    mode: 0755
+  when:
+    - jdk_provider == 'IBM'
+    
+- name: jdk_update|jdk_version variable
+  shell: ls /tmp/jdk_upgrade/ 
+  register: jdk_version01_output
+
+- name: jdk_update| set fact variable
+  set_fact: 
+      jdk_version01: "{{ jdk_version01_output.stdout }}"
+- 
+  debug: var=jdk_version01
+-
+  debug: var=jdk_provider  
+
+#- name: jdk_update|jdk_version variable
+#  shell: cat /tmp/jdk_upgrade/version.txt | head -1
+#  register: jdk_version01
+
+- name: jdk_update|jdk copy|sun
+  shell: cp -r /tmp/jdk_upgrade/* /app/bin/sun/
+  when:
+    - jdk_provider == 'SUN'
+
+- name: jdk_update|jdk copy|sun
+  shell: cp -r /tmp/jdk_upgrade/* /app/bin/ibm/
+  when:
+    - jdk_provider == 'IBM'
+  
+#- name: jdk_update|jdk_copy |sun
+#  copy:
+#    remote_src: yes
+#    src: '/tmp/jdk_upgrade/{{ jdk_version01 }}'
+#    dest: /app/bin/sun/
+#    owner: '{{ tomcat_user }}'
+#    group: '{{ tomcat_group }}'
+#    mode: 0755
+#    recurse: yes
+#  when:
+#    - jdk_provider == 'SUN'
+
+#- name: jdk_update|jdk_copy |ibm
+##  copy:
+#    remote_src: yes
+#    src: '/tmp/jdk_upgrade/{{ jdk_version01 }}'
+#    dest: /app/bin/ibm/
+#    owner: '{{ tomcat_user }}'
+#    group: '{{ tomcat_group }}'
+#    mode: 0755
+#    recurse: yes
+#  when:
+#    - jdk_provider == 'IBM'    
+      
+- name: jdk_update|remove existing symbolic link
+  file:
+    path: $root_dir/java
+    state: absent
+
+- name: jdk_update|create symbolic link|sun
+  file:
+    src: "/app/bin/sun/{{ jdk_version01 }}"
+    dest: "{{ root_dir }}/java"
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_group }}'
+    mode: 0755
+    state: link
+  when:
+    - jdk_provider == 'SUN'
+
+- name: jdk_update|create symbolic link|ibm
+  file:
+    src: "/app/bin/ibm/{{ jdk_version01 }}"
+    dest: "{{ root_dir }}/java"
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_group }}'
+    mode: 0755
+    state: link
+  when:
+    - jdk_provider == 'IBM'       
+
+- name: jdk_update|create symbolic link for app|sun
+  file:
+    src: "/app/bin/sun/{{ jdk_version01 }}"
+    dest: "/app/bin/java"
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_group }}'
+    mode: 0755
+    state: link
+  when:
+    - jdk_provider == 'SUN'
+
+- name: jdk_update|create symbolic link for app|ibm
+  file:
+    src: "/app/bin/ibm/{{ jdk_version01 }}"
+    dest: "/app/bin/java"
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_group }}'
+    mode: 0755
+    state: link
+  when:
+    - jdk_provider == 'IBM'  
+
+
+  
+################This code is not needed######################   
+- name: upgrade|get the jdk upgrade template 
+  template:
+    src: tomcat_jdkupgrade.cntl.template
+    dest: /tmp/tomcat_jdkupgrade.cntl
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_group }}'
+    mode: 0755
+  when:
+    - tomcat_user_action == 'jdk_upgrade' 
+
+ 
+- name: upgrade|populate cntl file with sun jdk version
+  blockinfile:
+    path: '/tmp/tomcat_jdkupgrade.cntl'
+    block: | 
+      environment.JAVA_SOFTWARE=/home/ansible/tomcattopology/target/jdk-{{ java_version }}-linux-x64.tar.gz
+      environment.JAVA_VERSION={{ java_version }}
+    marker: '#{mark} ANSIBLE MANAGED BLOCK - {{ java_version }}'
+    create: yes
+    backup: no
+  when: 
+    - "jdk_provider == 'SUN'" 
+    
+- name: upgrade|populate cntl file with ibm jdk version
+  blockinfile:
+    path: '/tmp/tomcat_jdkupgrade.cntl'
+    block: | 
+      environment.JAVA_SOFTWARE=/home/ansible/tomcattopology/target/ibm-java-x86_64-sdk-{{ java_version }}.tgz
+      environment.JAVA_VERSION={{ java_version }}
+    marker: '#{mark} ANSIBLE MANAGED BLOCK - {{ java_version }}'
+    create: yes
+    backup: no
+  when: 
+    - "jdk_provider == 'IBM'" 
+
+- name: install|copy tomcat_jdkupgrade script
+  copy:
+    src: 'files/tomcat_jdkupgrade.sh' 
+    dest: '{{ ansible_home }}/sh/' 
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_group }}'
+    mode: 0755    
+     
+#- name: upgrade|Upgrade jdk for tomcat
+#  shell: sh "{{ tomcat_topology_dir }}"/sh/tomcat_jdkupgrade.sh /tmp/tomcat_jdkupgrade.cntl "{{ root_dir }}"
+#  args:
+#    executable: /bin/bash
+#  register: output 
+
+- debug: var=output.stdout_lines
+#######################################################May not need#############################################
+
+#restart tomcat
+- name: jdk_update|Restart tomcat
+  shell: /etc/init.d/tomcatd recycle
+  
+
+- include: permissions.yml

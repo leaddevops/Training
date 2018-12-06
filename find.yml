@@ -1,0 +1,20 @@
+- hosts: ub
+  become: yes
+  tasks:
+   - name: Find the files
+     find: 
+      paths: '/opt/'
+      patterns: "*.java"
+     register: out
+#   - name: print
+#     debug:
+#       msg: "{{out}}"
+  
+   - name: remove results
+     file: 
+      path: "{{item.path}}"
+      state: absent
+     with_items: "{{out.files}}"
+     
+
+    

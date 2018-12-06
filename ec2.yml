@@ -1,0 +1,45 @@
+- name: Create EC2 Instance
+  hosts: localhost
+  tasks:
+    - ec2:
+        key_name: ravikey
+        instance_type: t2.micro
+        image: ami-06bcd1131b2f55803
+        wait: yes
+        group: securityclass 
+        count: 1 
+        vpc_subnet_id: subnet-3a730f52
+        assign_public_ip: yes
+        region: ap-south-1
+      register: out
+   
+    - debug:
+        msg: "{{out}}"
+    
+    - add_host:    # to add new instances to hostsfile
+        hostname: "{{ item.public_ip }}"
+        groupname: webserver
+      with_items: "{{out.instances}}"
+
+#    - wait_for:
+#        host: "{{ item.public_ip }}"
+#        port: 22
+#        delay: 60
+#        timeout: 320
+#        state: started
+#      with_items: "{{ out.instances }}"
+#
+#- name: Install Web Server
+#  hosts: webserver
+#  #become: yes
+#  tasks:
+#   - name: Install web server
+#     package: 
+#        name: httpd
+#        state: installed
+#   - name: Start Web Server
+#     service:
+#        name: httpd
+#        state: started
+
+

@@ -1,0 +1,13 @@
+---
+
+   - name: "Check Kernel Version"
+     shell: cat /etc/os-release;uname -a;ps -ef | grep java | grep -v grep| wc -l;echo ' ';
+     register: outputredhat 
+     
+   - file: path=/tmp/osrelease_output_redhat.log state=touch mode=0777 owner=root group=root
+
+   - copy:
+      content: "{% for host in groups.redhat %}{{ hostvars[host].outputredhat.stdout }}\n{% endfor %}"
+      dest: /tmp/osrelease_output_redhat.log
+     delegate_to: localhost
+     when: outputredhat is defined

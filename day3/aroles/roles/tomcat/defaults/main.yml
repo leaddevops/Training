@@ -1,0 +1,8 @@
+---
+
+tomcat_service_name: tomcatd
+tomcat_topology_dir: '/home/ansible/tomcattopology'
+tomcat_user: 'wasadmin'
+tomcat_group: 'mqm'
+
+ansible_home: /home/ansibl/tomcattopology/

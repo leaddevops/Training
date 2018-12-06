@@ -1,0 +1,11 @@
+- name: print out operating system
+  hosts: "{{ host }}" 
+#  connection: local
+  gather_facts: True
+  vars:
+    my_version: "{{ version }}"
+    my_env: "{{ env }}"
+  tasks:
+   - debug: var=host
+   - debug: var=version
+   - debug: var=env

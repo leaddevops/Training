@@ -1,0 +1,8 @@
+- name: print out operating system 
+  hosts: ub
+#  connection: local
+  gather_facts: True 
+  tasks: 
+   - debug: var=ansible_distribution 
+   - debug: var=ansible_architecture
+   - debug: var=ansible_default_ipv4.address

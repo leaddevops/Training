@@ -1,0 +1,5 @@
+---
+- name: copy a file
+  copy: 
+    src: /tmp/vars.yml
+    dest: /etc

@@ -1,0 +1,11 @@
+---
+
+  - include: ospatch_redhat_playbook.yml
+    when: ansible_os_family == "RedHat"
+    tags:
+     - redhat
+
+  - include: ospatch_suse_playbook.yml
+    when: ansible_os_family == "Suse"
+    tags:
+     - suse     

@@ -1,0 +1,21 @@
+#!/bin/bash
+contc=`docker ps | sed '1d' | egrep -v 'splunk|ucp|sysdig' | wc -l`
+utime=`uptime | awk '{print $4}'`
+
+if [ "$utime" == "days" ] || [ "$utime" == "days," ];then
+   uptime=`uptime | awk '{print $3}'`
+else
+   uptime="1"
+fi
+tmem=`free -g | awk '/^Mem:/{print $2}'`
+cpus=`lscpu | grep "CPU(s)" | sed '2,3d' | awk '{print $2}'`
+if [ $tmem -gt 64 ];then
+   vm="Large VM"
+else
+   vm="Small VM"
+fi
+printf "[Placement]\n"
+printf "cont_count=$contc\n"
+printf "uptime=$uptime\n"
+printf "vmtype=$vm\n"
+printf "vCPUs=$cpus\n"

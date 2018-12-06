@@ -1,0 +1,104 @@
+---
+
+- include: extract.yml
+
+#- name: install|Get the tomcat tarball
+#  include_role:
+#    name: gems.laas
+#  vars:
+#    get_object: 'open_source/tomcat/{{ tomcat_tarball_name }}'
+#    get_object_dir: '/tmp/{{ tomcat_tarball_name }}'
+#  ignore_errors: yes        
+    
+
+#- name: install|Extract tomcat tarball
+#  unarchive:
+#    remote_src: yes
+#    src: '/tmp/{{ tomcat_tarball_name }}'
+#    dest: /
+#    mode: 0755
+
+#   - copy: src=files/updateCntFile.sh dest=/tmp mode=0755
+#   - copy: src=files/InstallTomcat.sh dest=/tmp mode=0755
+    
+- name: install|get the template 
+  template:
+    src: tomcat_install.cntl.template
+    dest: /tmp/tomcat_install.cntl
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_group }}'
+    mode: 0755
+  when:
+    - tomcat_user_action == 'install' 
+
+- name: install|populate cntl file with sun jdk version
+  blockinfile:
+    path: '/tmp/tomcat_install.cntl'
+    block: | 
+      environment.JAVA_SOFTWARE=/home/ansible/tomcattopology/target/jdk-{{ java_version }}-linux-x64.tar.gz
+      environment.JAVA_VERSION={{ java_version }}
+    insertbefore: '#Third party source'
+    marker: '#{mark} ANSIBLE MANAGED BLOCK - {{ java_version }}'
+    create: yes
+    backup: no
+  when: 
+    - "jdk_provider == 'SUN'" 
+
+- debug: var=java_version
+
+    
+- name: install|populate cntl file with ibm jdk version
+  blockinfile:
+    path: '/tmp/tomcat_install.cntl'
+    block: | 
+      environment.JAVA_SOFTWARE=/home/ansible/tomcattopology/target/ibm-java-x86_64-sdk-{{ java_version }}.tgz
+      environment.JAVA_VERSION={{ java_version }}
+    insertbefore: '#Third party source'
+    marker: '#{mark} ANSIBLE MANAGED BLOCK - {{ java_version }}'
+    create: yes
+    backup: no
+  when: 
+    - "jdk_provider == 'IBM'"            
+
+       
+- name: install|populate cntl files
+  blockinfile:
+    path: '/tmp/tomcat_install.cntl'
+    block: | 
+      instance.{{ item }}.name={{ JVM_NAME }}0{{ item }}
+      instance.{{ item }}.location={{ root_dir }}/tomcatprofile/{{ JVM_NAME }}0{{ item }}
+      instance.{{ item }}.portbase={{ item|int - 1 }}
+      instance.{{ item }}.javaopts="-Xmx{{ heap }}m -Xms{{ heap }}m"
+    marker: '#{mark} ANSIBLE MANAGED BLOCK - {{ item }}'
+    create: yes
+    backup: no
+  with_sequence: "start=1 end={{ num_of_jvms }} stride=1"            
+     
+
+- name: install|copy tomcat_gen script
+  copy:
+    src: 'files/tomcat_gen.sh' 
+    dest: '{{ ansible_home }}/sh/' 
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_group }}'
+    mode: 0755
+
+- name: install|tomcatd script from templates 
+  template:
+    src: tomcatd_init.d.template
+    dest: '{{ ansible_home }}/util/tomcatd'
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_group }}'
+    mode: 0755
+  when:
+    - tomcat_user_action == 'install' 
+    
+- name: install|Install tomcat
+  shell: sh "{{ tomcat_topology_dir }}"/sh/tomcat_gen.sh /tmp/tomcat_install.cntl "{{ root_dir }}"
+  args:
+    executable: /bin/bash
+  register: output 
+
+- debug: var=output.stdout_lines
+
+- include: permissions.yml

@@ -1,0 +1,18 @@
+#environment section
+#environment.TOMCAT_SOFTWARE=/home/ansible/tomcattopology/target/apache-tomcat-{{ tomcat_version }}.tar.gz
+#environment.TOMCAT_VERSION={{ tomcat_version }}
+#environment.WILY_SOFTWARE=/home/ansible/tomcattopology/target/introscope.9.7.0.27.rev1.tar
+#environment.WILY_HOME=/opt/introscope_9.7.0
+#environment.WILY_VERSION=9.7.0.27
+environment.ANT_SOFTWARE=/home/ansible/tomcattopology/target/apache-ant-{{ ant_version }}-bin.zip
+environment.ANT_VERSION={{ ant_version }}
+environment.JAVA_PROVIDER="{{ jdk_provider }}"
+#environment.JAVA_SOFTWARE=/home/ansible/tomcattopology/target/jdk-8u40-linux-x64.gz
+#environment.JAVA_SOFTWARE=/home/ansible/tomcattopology/target/jdk-{{ java_version }}-linux-x64.tar.gz
+#environment.JAVA_VERSION={{ java_version }}
+#environment.EM_IP="EMHOST"
+#environment.EM_PORT="EMPORT"
+#environment.EM_Domain="DomainName"
+#environment.TOMCAT_APR=false
+#environment.TOMCAT_Manager=false
+

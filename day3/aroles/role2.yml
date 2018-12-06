@@ -1,0 +1,4 @@
+- hosts: lx2 
+  become: yes
+  roles: 
+    - test1

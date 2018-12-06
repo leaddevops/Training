@@ -1,0 +1,37 @@
+---
+
+    - name: Download ansible scripts from repo
+      get_url:
+        url: https://artifactorydev.es.ad.test.com/artifactory/Team-GEMS-local/Tomcat/ansible_tomcat_linux_bundle_8.0.20.0.tgz
+        dest: /tmp/ansible_tomcat_linux_bundle_8.0.20.0.tgz
+        mode: 0755
+        validate_certs: no
+        force: yes
+
+    - name: Extract ansible scripts
+      unarchive:
+        remote_src: yes
+        src: '/tmp/ansible_tomcat_linux_bundle_8.0.20.0.tgz'
+        dest: /
+        mode: 0755
+
+    - name: Download ansible scripts from repo
+      get_url:
+        url: https://artifactorydev.es.ad.test.com/artifactory/Team-GEMS-local/Tomcat/tomcat_V8.0.20_sunjdk_install_1.cntl
+        dest: /tmp/tomcat_V8.0.20_sunjdk_install_1.cntl
+        mode: 0755
+        validate_certs: no
+        force: yes
+
+    - copy: src=files/updateCntFile.sh dest=/tmp mode=0755
+    - copy: src=files/InstallTomcat.sh dest=/tmp mode=0755
+
+    - name: update cntl file
+      shell: sh /tmp/updateCntFile.sh "{{ NO_OF_JVMS }}" "{{ JVM1_Name }}" "{{ JVM1_ARGS }}" "{{ JVM1_InstallPath }}" 
+      args:
+        executable: /bin/bash
+
+    - name: Install tomcat
+      shell: sh /tmp/InstallTomcat.sh "{{ NO_OF_JVMS }}"
+      args:
+        executable: /bin/bash

@@ -1,0 +1,157 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Required-Start:    nscd nfs network
+# Required-Stop:     nscd nfs network
+# Default-Start:     3
+# Default-Stop:      2
+# Description: tomcat servers Start Shutdown
+### END INIT INFO#
+# Purpose:      tomcat servers Start Shutdown  
+# Author:       test                                
+# Last Update:  June , 29, 2008   
+#
+# chkconfig: - 5 87 13
+# description:  tomcat servers Start Shutdown  
+# processname: java
+#
+
+
+#Set script home
+
+platform=`uname -a`
+osname=${platform%% *}
+if [ $osname == 'SunOS' ]; then
+   echo "Proceed with Sun Solaris installtion ...."
+   PROFILE_HOME=/export/home/tomcatprofile                 
+elif [ $osname == "Linux" ]; then
+   echo "Proceed with Linux installation ...."
+   PROFILE_HOME={{ root_dir }}/tomcatprofile                 
+else
+   echo "Process abort -- Cannot determine Operation System"
+   exit 8
+fi
+
+PROFILE_DIR=${PROFILE_HOME}
+mkdir -p /tmp/wasstatus
+LF_START=/tmp/wasstatus/tomcatd_start.log
+LF_STOP=/tmp/wasstatus/tomcatd_stop.log
+LF_STATUS=/tmp/wasstatus/tomcatd_status.log
+
+
+RETVAL=0
+
+# source function library
+#. /etc/rc.d/init.d/functions
+
+usage ()
+{
+   echo "Usage: tomcatd {start|stop|recycle|status}"
+   RETVAL=0
+}
+
+displaystatus ()
+{
+
+   for entry in `ls -d ${PROFILE_DIR}/*`
+   do
+       echo ""
+       echo "process $entry"
+
+       if [ -f ${entry}/conf/instance.properties ]; then
+
+          https=( `cat ${entry}/conf/instance.properties | grep httpport| tr "=" " " ` )  
+          httpport=${https[1]}
+          status=`netstat -an | grep '\bLISTEN\b' | grep -c ${httpport} `
+          if [ $status -eq 0 ]; then
+             echo "$entry instance is down"
+          else
+             echo "$entry instance is up"
+          fi
+       else
+          echo "$entry is not a legit Tomcat profile - SKip"
+          RETVAL=0
+       fi
+   done
+}
+
+start ()
+{
+
+   for entry in `ls -d ${PROFILE_DIR}/*`
+   do
+       echo ""
+       echo "process $entry"
+
+       if [ -x ${entry}/bin/startup.sh ]; then
+          if [ `whoami` == "root" ]; then
+             su - wasadmin -c "cd ${entry}; bin/startup.sh"
+          else  
+             cd ${entry}; bin/startup.sh 
+          fi 
+          RETVAL=0
+       else
+          echo "$entry is not a legit Tomcat profile - Skip"
+          RETVAL=0
+       fi
+   done
+}
+
+stop ()
+{
+
+   for entry in `ls -d ${PROFILE_DIR}/*`
+   do
+       echo ""
+       echo "process $entry"
+
+       if [ -x ${entry}/bin/shutdown.sh ]; then
+          if [ `whoami` == "root" ]; then
+             su - wasadmin -c "cd ${entry}; bin/shutdown.sh"
+          else
+             cd ${entry}; bin/shutdown.sh
+          fi 
+       else
+          echo "$entry is not a legit Tomcat profile - Skip"
+          RETVAL=0
+       fi
+   done
+
+   # Check if there are process does not stop properly,  issue kill -9 command 
+   counter=`ps -ef | grep tomcat | grep -v tomcatd | sed /grep/d | wc -l`
+   if [ $counter -gt 0 ]; then
+      cleanupWASTask
+   fi
+}
+
+cleanupWASTask()
+{
+
+if [ $osname == 'SunOS' ]; then
+   /usr/ucb/ps -auxww | grep tomcat | sed /grep/d | cut -c10-15 | xargs kill -9
+elif [ $osname == "Linux" ]; then
+   ps -efww | grep tomcat | grep -v tomcatd | sed /grep/d | cut -c10-15 | xargs kill -9
+else
+   echo "Process abort -- Cannot determine Operation System"
+   exit 8
+fi
+
+
+}
+
+recycle ()
+{
+   stop
+   start
+}
+
+case "$1" in
+	start)	  start;;
+	stop)     stop;;
+	status)   displaystatus;;
+	recycle)  recycle;;
+	*)        usage;;
+esac
+
+exit $RETVAL
+
+

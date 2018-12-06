@@ -1,0 +1,34 @@
+--- 
+
+- 
+  include: uninstall.yml
+  tags: 
+    - "Uninstall tomcat"
+  when: 
+    - "tomcat_user_action == 'uninstall'"
+- 
+  include: install.yml
+  tags: 
+    - "Install tomcat"
+  when: 
+    - "tomcat_user_action == 'install'"
+- 
+  debug: var=inventory_hostname
+ 
+- 
+  include: upgrade.yml
+  tags: 
+    - "Install tomcat"
+  when: 
+    - "tomcat_user_action == 'upgrade'"
+- 
+  debug: var=inventory_hostname 
+   
+- 
+  include: jdk_upgrade.yml
+  tags: 
+    - "Install tomcat"
+  when: 
+    - "tomcat_user_action == 'jdk_upgrade'"
+- 
+  debug: var=inventory_hostname 

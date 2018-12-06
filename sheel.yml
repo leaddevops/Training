@@ -1,0 +1,7 @@
+- hosts: ub
+  become: yes
+  tasks:
+   - name: execute a shell command
+     shell: touch /tmp/abcdfile
+
+

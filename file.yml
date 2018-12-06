@@ -1,0 +1,8 @@
+- hosts: all
+  become: yes
+  tasks:
+   - name: Create a New File
+     file:
+      path: /tmp/new
+      state: absent
+

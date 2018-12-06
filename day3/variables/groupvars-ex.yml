@@ -1,0 +1,7 @@
+- name: print out operating system
+  hosts: all
+#  connection: local
+  gather_facts: false
+  tasks:
+   - debug: var=role
+   - debug: var=env

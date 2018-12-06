@@ -1,0 +1,8 @@
+ - hosts: localhost
+   connection: local
+   gather_facts: yes
+   tasks:
+     - name: Check Ping Connectivity
+       ping:
+     - name: command test
+       shell: "touch  /tmp/ravi"

@@ -1,0 +1,7 @@
+- hosts: lx
+  gather_facts: No
+  tasks:
+   - name: Check Ping Connection
+     ping:
+
+

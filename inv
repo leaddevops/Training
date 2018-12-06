@@ -1,0 +1,22 @@
+[lx]
+
+35.154.178.170
+13.233.166.1
+13.233.208.101
+
+[ub]
+
+13.232.103.173 ansible_ssh_user=ubuntu
+
+[lx:vars]
+ansible_ssh_user=ec2-user
+
+[win]
+
+13.127.165.151
+
+[win:vars]
+ansible_user=devops
+ansible_password=mnvs!1234
+ansible_connection=winrm
+ansible_winrm_server_cert_validation=ignore

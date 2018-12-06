@@ -1,0 +1,32 @@
+---
+#- name: Change permissions|all tomcat
+#  file:
+#    path: '{{ item.path }}'
+#    mode: '0755'
+#    owner: wasadmin
+#    group: mqm	
+#  with_items:
+#    - { path: '/opt/sun' }
+#    - { path: '/opt/java' }
+#    - { path: '/opt/tomcat' }
+#    - { path: '/opt/apache' }
+#    - { path: '/opt/ant' }
+#    - { path: '/home/tomcatprofile' }
+#  ignore_errors: yes
+
+- name: "Change permissions|all tomcat"
+  file: 
+    group: '{{ tomcat_group }}'
+    mode: "0755"
+    owner: '{{ tomcat_user }}'
+    path: "{{ item.path }}"
+  ignore_errors: true
+  with_items: 
+    - 
+      path: "{{ root_dir }}/java"
+    - 
+      path: "{{ root_dir }}/tomcat"
+    - 
+      path: "{{ root_dir }}/ant"
+    - 
+      path: "{{ root_dir }}/tomcatprofile"

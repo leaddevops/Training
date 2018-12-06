@@ -1,0 +1,13 @@
+[lx]
+
+13.233.231.126
+35.154.173.85
+13.233.208.210
+
+[ub]
+
+13.232.103.173 ansible_ssh_user=ubuntu
+
+[lx:vars]
+ansible_ssh_user=ec2-user
+

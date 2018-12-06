@@ -1,0 +1,4 @@
+- hosts: ub
+  become: yes
+  roles: 
+    - test

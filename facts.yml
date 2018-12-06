@@ -1,0 +1,6 @@
+- hosts: all
+ # gather_facts: No
+  tasks:
+   - name: What is OS of the server
+     debug: 
+      msg: " The OS is = {{ ansible_distribution }}"

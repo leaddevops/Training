@@ -1,0 +1,75 @@
+---
+
+- name: extract|Get the tomcat tarball
+  include_role:
+    name: gems.laas
+  vars:
+    get_object: 'open_source/tomcat/{{ tomcat_tarball_name }}'
+    get_object_dir: '/tmp/{{ tomcat_tarball_name }}'
+  ignore_errors: yes        
+    
+#    - name: Download ansible scripts from repo
+#      get_url:
+#        url: https://artifactorydev.es.ad.test.com/artifactory/Team-GEMS-local/Tomcat/ansible_tomcat_linux_bundle_8.0.20.0.tar
+#        dest: /tmp/ansible_tomcat_linux_bundle_8.0.20.0.tar
+#        mode: 0755
+#        validate_certs: no
+#        force: yes
+
+- name: extract|Extract tomcat tarball
+  unarchive:
+    remote_src: yes
+    src: '/tmp/{{ tomcat_tarball_name }}'
+    dest: /
+    mode: 0755
+    
+- name: extract|sun jdk binaries
+  include_role:
+    name: gems.laas
+  vars:
+    get_object: 'jdk/{{ jdk_sun_tarball_name }}'
+    get_object_dir: '/tmp/{{ jdk_sun_tarball_name }}'
+  when: 
+    - jdk_provider == 'SUN'
+  ignore_errors: yes
+
+- debug: var=jdk_sun_tarball_name  
+  
+- name: extract|ibm jdk binaries
+  include_role:
+    name: gems.laas
+  vars:
+    get_object: 'jdk/{{ jdk_ibm_tarball_name }}'
+    get_object_dir: '/tmp/{{ jdk_ibm_tarball_name }}'
+  when: 
+    - jdk_provider == 'IBM'
+  ignore_errors: yes
+
+- debug: var=jdk_ibm_tarball_name  
+ 
+ 
+- name: extract|Extract SUN JDK tarball
+  copy:
+    remote_src: yes
+    src: '/tmp/{{ jdk_sun_tarball_name }}'
+    dest: '{{ ansible_home }}/target/'
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_group }}'
+    mode: 0755
+  when:
+    - jdk_provider == 'SUN'
+    
+- debug: var=ansible_home
+    
+- name: extract|Extract IBM JDK tarball
+  copy:
+    remote_src: yes
+    src: '/tmp/{{ jdk_ibm_tarball_name }}'
+    dest: '{{ ansible_home }}/target/'
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_group }}'
+    mode: 0755
+  when:
+    - jdk_provider == 'IBM'
+
+- debug: var=ansible_home   

@@ -1,0 +1,71 @@
+---
+
+- include: extract.yml
+  
+    
+- name: upgrade|get the upgrade template 
+  template:
+    src: tomcat_upgrade.cntl.template
+    dest: /tmp/tomcat_upgrade.cntl
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_group }}'
+    mode: 0755
+  when:
+    - tomcat_user_action == 'upgrade' 
+
+#this block is not need for upgrade    
+#- name: install|populate cntl files
+#  blockinfile:
+#    path: '/tmp/tomcat_install.cntl'
+#    block: | 
+#      instance.{{ item }}.name={{ JVM_NAME }}0{{ item }}
+#      instance.{{ item }}.location={{ root_dir }}/tomcatprofile/{{ JVM_NAME }}0{{ item }}
+#      instance.{{ item }}.portbase={{ item|int - 1 }}
+#      instance.{{ item }}.javaopts="-Xmx{{ heap }}m -Xms{{ heap }}m"
+#    marker: '#{mark} ANSIBLE MANAGED BLOCK - {{ item }}'
+#    create: yes
+#   backup: no
+#  with_sequence: "start=1 end={{ num_of_jvms }} stride=1"
+
+#this block is not need for upgrade    
+- name: upgrade|populate cntl file with sun jdk version
+  blockinfile:
+    path: '/tmp/tomcat_upgrade.cntl'
+    block: | 
+      environment.JAVA_SOFTWARE=/home/ansible/tomcattopology/target/jdk-{{ java_version }}-linux-x64.tar.gz
+      environment.JAVA_VERSION={{ java_version }}
+    marker: '#{mark} ANSIBLE MANAGED BLOCK - {{ java_version }}'
+    create: yes
+    backup: no
+  when: 
+    - "jdk_provider == 'SUN'" 
+    
+- name: upgrade|populate cntl file with ibm jdk version
+  blockinfile:
+    path: '/tmp/tomcat_upgrade.cntl'
+    block: | 
+      environment.JAVA_SOFTWARE=/home/ansible/tomcattopology/target/ibm-java-x86_64-sdk-{{ java_version }}.tgz
+      environment.JAVA_VERSION={{ java_version }}
+    marker: '#{mark} ANSIBLE MANAGED BLOCK - {{ java_version }}'
+    create: yes
+    backup: no
+  when: 
+    - "jdk_provider == 'IBM'" 
+
+- name: install|copy tomcat_upgrade script
+  copy:
+    src: 'files/tomcat_upgrade.sh' 
+    dest: '{{ ansible_home }}/sh/' 
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_group }}'
+    mode: 0755    
+     
+- name: upgrade|Upgrade tomcat
+  shell: sh "{{ tomcat_topology_dir }}"/sh/tomcat_upgrade.sh /tmp/tomcat_upgrade.cntl "{{ root_dir }}"
+  args:
+    executable: /bin/bash
+  register: output 
+
+- debug: var=output.stdout_lines
+
+- include: permissions.yml

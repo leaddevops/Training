@@ -1,0 +1,12 @@
+---
+- name: install_variables
+  set_fact: 
+    JVM_1_INSTALL_PATH: "{{ root_dir }}/tomcatprofile/{{ JVM_NAME_1 }}"
+    JVM_2_INSTALL_PATH: "{{ root_dir }}/tomcatprofile/{{ JVM_NAME_2 }}"
+    JVM_3_INSTALL_PATH: "{{ root_dir }}/tomcatprofile/{{ JVM_NAME_3 }}"
+    JVM_4_INSTALL_PATH: "{{ root_dir }}/tomcatprofile/{{ JVM_NAME_4 }}"
+- debug: var=JVM_1_INSTALL_PATH
+- debug: var=JVM_2_INSTALL_PATH
+- debug: var=JVM_3_INSTALL_PATH
+- debug: var=JVM_4_INSTALL_PATH
+

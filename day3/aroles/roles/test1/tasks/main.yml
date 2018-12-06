@@ -1,0 +1,15 @@
+---
+# tasks file for test1
+- debug: var=role
+- debug: var=env
+
+#- import_tasks: install.yml
+#- import_tasks: service.yml
+
+- name: failure handler test
+  shell: touch /etc/bbc.txt 
+  register: out
+  failed_when: out.stderr
+  notify:
+    - failure 
+- debug: var=out.rc

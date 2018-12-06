@@ -1,0 +1,5 @@
+---
+- hosts: all 
+  gather_facts: true
+  tasks:
+   - debug: msg="{{ hostvars[inventory_hostname]['ansible_date_time']['date'] }}"

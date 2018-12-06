@@ -1,0 +1,6 @@
+---
+- hosts: localhost   
+  connection: local   
+  tasks:     
+   - include_vars: '/home/theegaln/corp/variables/vars.yml'
+   - debug:  var=abc

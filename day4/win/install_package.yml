@@ -1,0 +1,18 @@
+---
+- name: Install Apache from an MSI 
+  hosts: win 
+  tasks:
+    - name: Download the Apache installer
+      win_get_url:
+        url: 'https://archive.apache.org/dist/httpd/binaries/win32/httpd-2.2.25-win32-x86-no_ssl.msi'
+        dest: 'C:\Users\Administrator\Downloads\httpd-2.2.25-win32-x86-no_ssl.msi'
+
+    - name: Install MSI
+      win_package: 
+        path: 'C:\Users\Administrator\Downloads\httpd-2.2.25-win32-x86-no_ssl.msi'
+        state: present
+    - win_service:
+        name: httpd
+        path: C:\Program Files (x86)\Apache Software Foundation\Apache2.2\bin\httpd.exe
+        display_name: httpd service
+        start_mode: auto

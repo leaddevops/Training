@@ -1,0 +1,15 @@
+---
+- hosts: win
+  tasks:
+  - name: create local user
+    win_user:
+      name: '{{item.name}}'
+      password: '{{item.password}}'
+#      groups: LocalGroup
+      update_password: on_create 
+      password_never_expired: yes
+    with_items:
+    - name: User1
+      password: Password1
+    - name: User2
+      password: Password2

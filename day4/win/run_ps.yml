@@ -1,0 +1,17 @@
+---
+- name: Copy file
+  hosts: win
+  gather_facts: false
+  tasks:
+  - win_copy:
+      src: sample.ps1
+      dest: c:\sample.ps1
+
+- name: Run powershell script
+  hosts: win 
+  gather_facts: false
+  tasks:
+    - name: Run powershell script
+      win_shell: c:\sample.ps1
+      register: out
+    - debug: var=out.stdout_lines
